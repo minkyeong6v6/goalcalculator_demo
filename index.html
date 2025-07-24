@@ -570,7 +570,7 @@
                 </div>
             </div>
             
-            <button class="main-button" onclick="nextStep()">시작하기</button>
+            <button class="main-button" onclick="goToStep2()">시작하기</button>
         </div>
         
         <!-- Step 2: 목적 선택 -->
@@ -770,3 +770,23 @@
                             <span style="color: #1e40af; font-weight: 700; font-size: 16px;">6,000만원</span>
                         </div>
                     </div>
+    
+    <script>
+    function nextStep() {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+    }
+    
+    function selectPurpose(element, purpose) {
+        document.querySelectorAll('.option-button').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        setTimeout(() => {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+        }, 500);
+    }
+    </script>
+</body>
+</html>
