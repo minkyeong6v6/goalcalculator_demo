@@ -771,22 +771,47 @@
                         </div>
                     </div>
     
-    <script>
-    function nextStep() {
-        document.getElementById('step1').classList.remove('active');
-        document.getElementById('step2').classList.add('active');
+   <script>
+function nextStep() {
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+}
+
+function prevStep() {
+    // 이전 단계로 가는 함수
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+}
+
+function selectPurpose(element, purpose) {
+    document.querySelectorAll('.option-button').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    setTimeout(() => {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.add('active');
+    }, 500);
+}
+
+function validateAndNext(type) {
+    if (type === 'amount') {
+        document.getElementById('step3').classList.remove('active');
+        document.getElementById('step4').classList.add('active');
+    } else if (type === 'savings') {
+        document.getElementById('step4').classList.remove('active');
+        document.getElementById('step5').classList.add('active');
     }
-    
-    function selectPurpose(element, purpose) {
-        document.querySelectorAll('.option-button').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        element.classList.add('selected');
-        setTimeout(() => {
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step3').classList.add('active');
-        }, 500);
-    }
-    </script>
+}
+
+function showProgress() {
+    document.getElementById('step5').classList.remove('active');
+    document.getElementById('step6').classList.add('active');
+    setTimeout(() => {
+        document.getElementById('step6').classList.remove('active');
+        document.getElementById('step7').classList.add('active');
+    }, 3000);
+}
+</script>
 </body>
 </html>
