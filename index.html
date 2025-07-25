@@ -570,7 +570,7 @@
                 </div>
             </div>
             
-            <button class="main-button" onclick="goToStep2()">시작하기</button>
+            <button class="main-button" onclick="nextStep()">시작하기</button>
         </div>
         
         <!-- Step 2: 목적 선택 -->
@@ -770,48 +770,213 @@
                             <span style="color: #1e40af; font-weight: 700; font-size: 16px;">6,000만원</span>
                         </div>
                     </div>
-    
-   <script>
-function nextStep() {
-    document.getElementById('step1').classList.remove('active');
-    document.getElementById('step2').classList.add('active');
-}
+                </div>
+            </div>
+        </div>
+    </div>
 
-function prevStep() {
-    // 이전 단계로 가는 함수
-    document.getElementById('step2').classList.remove('active');
-    document.getElementById('step1').classList.add('active');
-}
+    <script>
+        // 전역 변수
+        let currentStep = 1;
+        let userData = {
+            purpose: '',
+            targetAmount: 0,
+            currentSavings: 0,
+            monthlyIncome: 317,
+            monthlyExpense: 208,
+            currentAsset: 5000
+        };
 
-function selectPurpose(element, purpose) {
-    document.querySelectorAll('.option-button').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    element.classList.add('selected');
-    setTimeout(() => {
-        document.getElementById('step2').classList.remove('active');
-        document.getElementById('step3').classList.add('active');
-    }, 500);
-}
+        // 기본값들
+        const defaultValues = {
+            monthlyIncome: 317,
+            monthlyExpense: 208,
+            currentAsset: 5000
+        };
 
-function validateAndNext(type) {
-    if (type === 'amount') {
-        document.getElementById('step3').classList.remove('active');
-        document.getElementById('step4').classList.add('active');
-    } else if (type === 'savings') {
-        document.getElementById('step4').classList.remove('active');
-        document.getElementById('step5').classList.add('active');
-    }
-}
+        // 다음 스텝으로 이동
+        function nextStep() {
+            if (currentStep < 7) {
+                hideStep(currentStep);
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
 
-function showProgress() {
-    document.getElementById('step5').classList.remove('active');
-    document.getElementById('step6').classList.add('active');
-    setTimeout(() => {
-        document.getElementById('step6').classList.remove('active');
-        document.getElementById('step7').classList.add('active');
-    }, 3000);
-}
-</script>
+        // 이전 스텝으로 이동
+        function prevStep() {
+            if (currentStep > 1) {
+                hideStep(currentStep);
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        // 스텝 보이기
+        function showStep(step) {
+            document.getElementById(`step${step}`).classList.add('active');
+        }
+
+        // 스텝 숨기기
+        function hideStep(step) {
+            document.getElementById(`step${step}`).classList.remove('active');
+        }
+
+        // 목적 선택
+        function selectPurpose(button, purpose) {
+            // 모든 버튼의 선택 상태 해제
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // 클릭된 버튼 선택 상태로 변경
+            button.classList.add('selected');
+            userData.purpose = purpose;
+            
+            // 에러 메시지 숨기기
+            document.getElementById('purpose-error').style.display = 'none';
+        }
+
+        // 유효성 검사 및 다음 스텝
+        function validateAndNext(type) {
+            let isValid = true;
+            
+            if (type === 'purpose') {
+                if (!userData.purpose) {
+                    document.getElementById('purpose-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('purpose-error').style.display = 'none';
+                }
+            } else if (type === 'amount') {
+                const amount = document.getElementById('target-amount').value;
+                if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                    document.getElementById('amount-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    userData.targetAmount = parseFloat(amount);
+                    document.getElementById('amount-error').style.display = 'none';
+                }
+            } else if (type === 'savings') {
+                const savings = document.getElementById('current-savings').value;
+                if (!savings || isNaN(savings) || parseFloat(savings) < 0) {
+                    document.getElementById('savings-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    userData.currentSavings = parseFloat(savings);
+                    document.getElementById('savings-error').style.display = 'none';
+                }
+            }
+            
+            if (isValid) {
+                nextStep();
+            }
+        }
+
+        // 진행률 화면 표시
+        function showProgress() {
+            nextStep();
+            
+            // 진행률 애니메이션
+            let progress = 0;
+            const progressElement = document.querySelector('.percentage');
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    progressElement.textContent = '100%';
+                    clearInterval(interval);
+                    
+                    // 2초 후 결과 화면으로 이동
+                    setTimeout(() => {
+                        nextStep();
+                    }, 2000);
+                } else {
+                    progressElement.textContent = Math.floor(progress) + '%';
+                }
+            }, 500);
+        }
+
+        // 자산 업데이트
+        function updateAsset(value) {
+            userData.currentAsset = parseInt(value);
+            document.getElementById('current-asset').textContent = `${parseInt(value).toLocaleString()}만원`;
+        }
+
+        // 소득 업데이트
+        function updateIncome(value) {
+            userData.monthlyIncome = parseInt(value);
+            document.getElementById('monthly-income').textContent = `${parseInt(value)}만원`;
+        }
+
+        // 지출 업데이트
+        function updateExpense(value) {
+            userData.monthlyExpense = parseInt(value);
+            document.getElementById('monthly-expense').textContent = `${parseInt(value)}만원`;
+        }
+
+        // 초기값으로 되돌리기
+        function resetToDefault() {
+            userData.monthlyIncome = defaultValues.monthlyIncome;
+            userData.monthlyExpense = defaultValues.monthlyExpense;
+            userData.currentAsset = defaultValues.currentAsset;
+            
+            document.getElementById('income-slider').value = defaultValues.monthlyIncome;
+            document.getElementById('expense-slider').value = defaultValues.monthlyExpense;
+            document.getElementById('asset-slider').value = defaultValues.currentAsset;
+            
+            document.getElementById('monthly-income').textContent = `${defaultValues.monthlyIncome}만원`;
+            document.getElementById('monthly-expense').textContent = `${defaultValues.monthlyExpense}만원`;
+            document.getElementById('current-asset').textContent = `${defaultValues.currentAsset.toLocaleString()}만원`;
+        }
+
+        // 다시 계산하기
+        function recalculate() {
+            // 실제로는 여기서 새로운 계산을 수행할 수 있습니다
+            // 현재는 단순히 애니메이션 효과만 적용
+            const button = document.querySelector('.recalculate-btn');
+            button.disabled = true;
+            button.textContent = '계산 중...';
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = '다시 계산하기';
+                
+                // 결과 업데이트 (예시)
+                const monthlySavings = userData.monthlyIncome - userData.monthlyExpense;
+                const targetAmountInWon = userData.targetAmount * 10000; // 억원을 만원으로 변환
+                const remainingAmount = targetAmountInWon - userData.currentAsset;
+                
+                if (monthlySavings > 0 && remainingAmount > 0) {
+                    const monthsToGoal = Math.ceil(remainingAmount / monthlySavings);
+                    const years = Math.floor(monthsToGoal / 12);
+                    const months = monthsToGoal % 12;
+                    
+                    document.querySelector('.result-title').innerHTML = 
+                        `${years}년 ${months}개월 후에<br>${userData.targetAmount}억을 모으실 수 있어요!`;
+                }
+            }, 1500);
+        }
+
+        // 숫자 입력 필드에 천단위 콤마 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            const numberInputs = document.querySelectorAll('.amount-input, .savings-input');
+            
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    // 숫자가 아닌 문자 제거
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    
+                    // 천단위 콤마 추가
+                    if (value) {
+                        value = parseInt(value).toLocaleString();
+                    }
+                    
+                    e.target.value = value;
+                });
+            });
+        });
+    </script>
 </body>
 </html>
